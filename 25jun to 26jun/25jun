@@ -1,0 +1,40 @@
+What is Express.js?
+  Express.js is a tool that helps you build
+websites 
+and web apps using Node.js.
+It simplifies many tasks that 
+you would need to do manually with Node.js.
+
+Main Features:
+Fast and Non-Blocking: Express.js is designed 
+to handle tasks quickly without slowing down.
+Flexible App Design: You can create different 
+types of web apps, including single-page, 
+multi-page, and hybrid apps.
+Middleware: It helps you set up functions that handle different parts of your app, like processing requests or handling errors.
+Easy Routing: Instead of using complex if-else statements to handle different web addresses (routes), Express.js makes it simple to define routes.
+Dynamic HTML Rendering: It lets you create HTML pages that can change based on data.
+
+Why Use Express.js?
+Efficient: It handles multiple tasks at the same time without getting stuck.
+Organized Code: It supports the Model-View-Controller (MVC) design, which helps you keep your code organized.
+Simplified Routing: It makes it easy to manage different web addresses in your app.
+
+
+Example Code:
+const express = require('express');
+const server = express(); // Create an Express app
+
+// Define a route for the homepage
+server.get('/', (request, response) => {
+    response.send('Server is working fine'); // Send a response
+});
+
+// Start the server on port 1122
+server.listen(1122, () => {
+    console.log('Server is working'); // Log a message when the server starts
+});
+
+This example sets up a basic server that responds with "Server is working fine" when you visit the homepage and listens on port 1122.
+
+

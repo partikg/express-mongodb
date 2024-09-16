@@ -1,0 +1,289 @@
+In our project folder, 
+open cmd and start the server by command,
+nodemon
+
+In database,
+as we have previously connected our database to server 
+
+
+To connect server to database:
+in database.js,
+we change the database name from ecommerce to fashion 
+(const dbName = 'fashion';)
+as we already have ecommerce database in previous lectures 
+
+in database.js,
+to connect fashion database to mongodb server
+take constant db in which pass client server which connect to database by db function and connect to fashion database 
+( const db = client.db(dbName);
+  return db; )
+then return constant db which will have result from connecting to database 
+
+then export only main 
+(module.exports = main;)
+and not main()function ie function is not passed  
+
+
+now go to mongodbcompass app and in fashion database will be created 
+so we have send data from database file 
+if not created then we need to insert values in database 
+
+
+whole code of database.js:
+(const { MongoClient } = require('mongodb');
+
+const url = 'mongodb://localhost:27017';
+const client = new MongoClient(url);
+
+const dbName = 'frankandco';
+
+async function main() {
+    await client.connect();
+    console.log('Connected successfully to server');
+
+    const db = client.db(dbName);
+    return db;
+}
+
+module.exports = main;
+)
+
+
+----------------------------------------------
+
+
+To get values:
+In categories controller file,
+in create function, 
+in data key pass request.query 
+(data: request.query)
+
+then Open thunderclient,
+give add url and use post method 
+in query give inputs like name and image 
+which will automatically gets uploaded in the add url 
+then send and in response we will get name and image key as
+"data": {
+    "name": "pratik",
+    "image": "2.jpg"
+}
+
+
+
+now second way is giving inputs in Body 
+In Body, in JSON get that response of name and image key from query 
+like 
+{
+    "name": "pratik",
+    "image":"1.jpg"
+}
+remove inputs from query 
+and keep in mind that key and values in input should have "" double quotes 
+in categories controller file,
+in data key give request.body
+(data: request.body) 
+and in server.js file,
+write server.use(express.json());
+now click send and we get the success response 
+
+
+
+
+To save value in database:
+In categories controller file,
+include database file in dbconnection constant 
+( const dbconnection = require('../../../database'); )
+
+now to make this dbconnection constant an executable function
+for this take a db constant in which pass dbconnection() as a  function 
+( const db = await dbconnection(); )
+
+and we make this dbconnection an function which works by promise base so we use await here and async at create function 
+(exports.create = async (request, response) => { })
+
+now make database collection
+for this take category constant in which pass the db constant db.collection() 
+and give collection name categories
+( const category = db.collection('categories'); )
+
+now to run insert query 
+take constant result in which pass 
+await db.collection('categories').insertOne();
+but we have given db.collection('categories') as category 
+so we direct use category constant 
+await category.insertOne();
+we want to save name and image key in database and also in api 
+so we will pass the same request.body from data key in the insertone() function 
+( const result = await category.insertOne(request.body); )
+
+In data key pass result constant 
+(data: result)
+
+so in database ie in mongodbcompass,
+fashion database will be created 
+in which category collection is created
+in category collections record will have name and image key 
+if not created in mongodbcompass then insert values 
+
+
+whole code of categories.controller.js:
+( const dbconnection = require('../../../database');
+const mongodb = require('mongodb');
+
+exports.create = async (request, response) => {
+    const db = await dbconnection();
+    const category = db.collection('categories');
+    const result = await category.insertOne(request.body);
+
+    var data = {
+        status: true,
+        message: 'record created successfully',
+        data: result
+    }
+    response.send(data);
+}
+
+exports.view = (request, response) => {
+}
+exports.delete = (request, response) => {
+}
+exports.update = (request, response) => {
+}
+) 
+
+
+
+
+
+now in thunderclient,
+in add request, in body JSON give input name and image 
+({
+  "name":"pratik",
+  "image":"3.jpg"
+})
+and send  
+so we get sucess response with acknowledged key as true and insertedId key
+
+In mongodbcompass, 
+we will have fashion database in which category collection where name and image record is created
+
+
+
+
+In thunderclient, in body 
+in JSON, to change the key name  
+as name as category_name 
+and image as category_image 
+and we just click send which will create a new record with new keynames as category_name and category_image in mongodbcompass
+
+but it would be problem as key name is changed as 'key name should not be changed'  
+for this In categoriescontroller.js file, 
+at create function 
+make a object in that pass name and image key 
+and in name pass request.body.category_name 
+and for image pass request.body.category_image
+( const obj = {
+            name: request.body.category_name,
+            image: request.body.category_image,
+        } )
+then pass the object in insertOne function 
+(const result = await category.insertOne(obj);)
+
+now in thunderclient,in Body, in JSON 
+where we have name key as category_name 
+and image key as category_image
+({
+  "category_name":"pratik",
+  "category_image":"3.jpg"
+})
+then click send 
+which will in mongodbcompass give record with name and image key 
+
+
+
+for multiple record
+In categoriescontroller.js,
+at create function, instead of insertOne() function use insertMany() function
+(const result = await category.insertMany(obj);)
+and make object an array by adding the object in the square brackets[] and repeate object
+( const obj = [
+        {
+            name: request.body.category_name,
+            image: request.body.category_image,
+        },
+        {
+            name: request.body.category_name,
+            image: request.body.category_image,
+        }
+    ] )
+or 
+can use request.body for multiple objects
+(const obj = request.body;)
+now in thunderclient,
+in body in JSON give inputs as 
+([
+  {
+  "category_name":"pratik",
+  "category_image":"4.jpg"
+},  
+{
+  "category_name":"pratik",
+  "category_image":"4.jpg"
+}
+])
+and click send so in response we see insertedCount as 2 
+and in mongodb we have 2 new records 
+
+
+
+-----------------------------------------------
+
+
+
+view function:
+In categoriescontroller.js, in view function,
+to view data from database on browser 
+take a db constant in which pass dbconnection() as a  function 
+( const db = await dbconnection(); )
+and we make this dbconnection an function which works by promise base so we use await here and async at view function 
+(exports.view = async (request, response) => {})
+
+now make database collection
+for this take result constant in which pass the db constant db.collection() 
+and give collection name categories
+( const result = db.collection('categories'); )
+
+this two lines of code (ie db and result) is applicable in every function ie create,view,update,delete
+so paste these db and result constant in update and delete function 
+
+then use find() function and use toArray() function 
+(const result = await category.find().toArray();)
+and pass result constant in data key 
+(data: result)
+
+now at browser put url http://localhost:2000/api/backend/categories/view
+so we will get all the records from database(mongodb) on browser 
+and in thunderclient, give view function url and get method and send 
+which gives all records in response  
+
+
+-----------------------------------------------
+
+
+cors:
+when we connect this function to react project 
+then it will an error of cors 
+for this install cors package 
+go to cors npm website and install the package in server file  
+(npm install cors)
+
+in server.js file,
+get the code from usage section 
+and paste the code in server.js file  
+( var cors = require('cors') )
+( server.use(cors()) )
+now we wont get cors error 
+
+
+
+

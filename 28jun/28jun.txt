@@ -1,0 +1,368 @@
+MVC structure:
+
+we will make a folder 
+in that install express package(npm i express)
+and install mongodb(npm i mongodb)
+
+then open code in vscode 
+and make a package.json file (npm init -y)
+in package.json replace main key value as server.js 
+and make a new file as server.js
+
+in server.js
+as lastly we made server.js file same code 
+remove route variable and validation and server.use function 
+
+
+
+
+whole code of server.js :
+(const express = require('express');
+const server = express();
+
+server.get('/', (request, response) => {
+    response.send('server working fine');
+})
+
+server.post('/add-category', (request, response) => {
+    var data = {
+        status: true,
+        message: 'record created successfully',
+        data: ''
+    }
+    response.send(data);
+})
+
+server.get('/view-category', (request, response) => {
+    {
+        var data = {
+            status: true,
+            message: 'record found successfully',
+            data: ''
+        }
+    }
+
+    response.send(data);
+})
+
+route.get('/update-category', (request, response) => {
+    var data = {
+        status: true,
+        message: 'record updated successfully',
+        data: ''
+    }
+    response.send(data);
+})
+
+server.delete('/delete-category', (request, response) => {
+    var data = {
+        status: true,
+        message: 'record deleted successfully',
+        data: ''
+    }
+    response.send(data);
+})
+
+server.listen(26, () => {
+    console.log(`Server running `);
+});
+)
+
+
+
+
+
+
+
+
+
+
+
+now for MVC structure:
+src -models     -common file 
+    -routes     -backend,frontend,application
+    -controller -backend,frontend,application
+
+for this make src folder 
+in src, make three folders ie routes,models, controller
+in routes folder, make three folder ie backend,frontend,application
+in controller folder - make three folder ie backend,frontend,application 
+
+
+
+
+----------------------------------------------
+
+
+
+Routes:
+
+we will make routes for backend folder 
+so in routes , in backend folder, 
+make a new file as categories.routes.js 
+also another file as products.routes.js for category and products 
+
+
+in categories.routes.js file,
+use module exports function 
+(module.exports = () => {
+  
+};)
+and get that four routes from server.js file to inside this function 
+(
+module.exports = () => {
+
+    server.post('/add-category', (request, response) => {
+    })
+
+    server.get('/view-category', (request, response) => {
+    })
+
+    route.get('/update-category', (request, response) => {
+    })
+
+    server.delete('/delete-category', (request, response) => {
+    })
+};  
+)
+
+
+
+then in server.js file  include these four routes so use require function with categories.routes file path
+( require('./src/routes/backend/categories.routes')(server); )
+
+then in categories.routes.js file ,
+include express function having Router function 
+( const express = require('express');
+const server = express.Router(); )
+
+then in categories.routes.js file, 
+app.use function is used which will use then server variable
+( app.use('/', server); ) 
+and give app on module.exports 
+(module.exports = app => {})
+
+then in cmd give nodemon command 
+and on browser give url http://localhost:26/
+and in response we get server working fine
+also in view category url http://localhost:26/view-category 
+you get correct response 
+
+
+
+whole code of categories.routes.js :
+(const express = require('express');
+const server = express.Router();
+
+module.exports = app => {
+
+    server.post('/add-category', (request, response) => { })
+
+    server.get('/view-category', (request, response) => { })
+
+    server.get('/update-category', (request, response) => { })
+
+    server.delete('/delete-category', (request, response) => {  })
+    app.use('/', server);
+};)
+
+
+ 
+
+you want to an api url for frontend and backend
+then you give url for backend like  
+localhost:2023/view-categories
+then for frontend api url cant use the same name as view-categories then give url as  
+localhost:2023/api/backend/categories/view 
+where we give prefix as api after that for what youre making api(like backend) after that write categories in which view api should call 
+
+then for frontend give url will be as 
+localhost:2023/api/frontend/categories/view
+
+
+(this step only learn next step is shortcut)
+then in categories.routes.js,
+in every route give url with prefix as
+so at add route:
+(  server.post('/api/backend/categories/add', (request, response)   => {  }) )
+like that for other 
+
+
+in categories.routes.js,
+now we have to define this url at all 4 api ie add,view,update and delete 
+so we can define this url at one place and use it for all api 
+so give url in app.use function 
+( app.use('/api/backend/categories', server); )
+
+and give /add url in add api 
+and /view url in view api like that for delete and update  
+(  server.post('/add', (request, response)   => {  }) )
+so on browser give url as http://localhost:2000/api/backend/categories/view and it displays response
+
+
+
+whole code of  categories.routes.js :
+(const express = require('express');
+const server = express.Router();
+
+module.exports = app => {
+
+    server.get('/add', (request, response) => {
+    })
+
+    server.get('/view', (request, response) => {    })
+
+    server.get('/update', (request, response) => { })
+
+    server.delete('/delete', (request, response) => {  })
+
+    app.use('/api/backend/categories', server);
+};)
+
+
+same for products.routes.js file 
+copy all code from categories.routes.js and paste it in products.routes.js with changing url in app.use() as /api/backend/products
+(app.use('/api/backend/products', server);)
+and in server.js give products routes file 
+(require('./src/routes/backend/products.routes')(server);
+)
+then on browser give url as http://localhost:2000/api/backend/products/view and it give response 
+
+
+
+
+----------------------------------------------
+
+
+controller:
+
+In controllers in backend make a new file as categories.controller.js file 
+in categories.controller.js file , 
+make functions as create function,view function,delete function,update function
+then copy the function code from routes add api and paste inside all functions 
+(exports.create = (request, response) => {
+    var data = {
+        status: true,
+        message: 'record created successfully',
+        data: ''
+    }
+    response.send(data);
+}
+exports.view = (request, response) => { }
+exports.update = (request, response) => { }
+exports.delete= (request, response) => { }
+)
+
+
+In categories routes file, 
+call the categories controller file functions by passing the functions in the routes 
+like for calling create function in add route pass create function from the suggestions 
+( server.post('/add', create))
+which will automatically import the create function at the top 
+( const { create } = require('path'); )
+same for view
+for update and delete we will use a new constant category which will have the categories controller file 
+(const category = require('../../controller/backend/categories.controller')
+)
+(  server.get('/update', category.update) 
+   server.delete('/delete', category.delete))
+
+so in chrome url paste the http://localhost:2000/api/backend/categories/view to get the view content 
+also for delete use thunderclient as we use delete method 
+
+
+
+whole code of categories.controller.js :
+(exports.create = (request, response) => {
+    var data = {
+        status: true,
+        message: 'record created successfully',
+        data: ''
+    }
+    response.send(data);
+}
+
+exports.view = (request, response) => {
+    var data = {
+        status: true,
+        message: 'record viewed successfully',
+        data: ''
+    }
+    response.send(data);
+}
+
+exports.delete = (request, response) => {
+    var data = {
+        status: true,
+        message: 'record deleted successfully',
+        data: ''
+    }
+    response.send(data);
+}
+exports.update = (request, response) => {
+    var data = {
+        status: true,
+        message: 'record updated successfully',
+        data: ''
+    }
+    response.send(data);
+}
+)
+
+
+
+
+
+----------------------------------------------
+
+
+connecting to database:
+go to mongodb npm website 
+install mongodb package if not installed 
+at Connect to MongoDB section,
+get the mongoclient code 
+
+make a new file as database.js and in that paste the code 
+
+then in database.js file 
+in the mongoclient code  
+we will call the mongodb function 
+( const { MongoClient } = require('mongodb'); )
+then declare constant url to connect to mongodb 
+( const url = 'mongodb://localhost:27017'; )
+then give dbname 
+( const dbName = 'ecommerce'; )
+then in main function connect the database 
+
+now in server.js, 
+call database.js file 
+by making a constant dbconnection and in that call database file
+( const dbconnection = require('./database') )
+
+then in database.js,
+export the main function 
+( module.exports = main(); )
+
+so in cmd we get Connected successfully to server
+so we got the server connected to mongodb 
+
+
+
+
+whole code of database.js:
+( const { MongoClient } = require('mongodb');
+
+const url = 'mongodb://localhost:27017';
+const client = new MongoClient(url);
+
+const dbName = 'ecommerce';
+
+async function main() {
+    await client.connect();
+    console.log('Connected successfully to server');
+    const db = client.db(dbName);
+    return 'done.';
+}
+
+module.exports = main();
+)

@@ -1,0 +1,225 @@
+Go to express-mongodb project file 
+open cmd and use command nodemon
+
+
+Ways of getting values:
+in server.js file,
+comment the (server.use(express.json())) line  
+also comment create function query code of constant db,obj and result
+(const db = await dbconnection();
+const category = db.collection('categories');
+const obj = request.body;
+
+const result = await category.insertMany(obj);
+)
+
+
+query:
+for passing value at the url or parameter 
+we will use request.query in data key 
+(data: request.query)
+
+then in thunderclient,
+give add url and use post method 
+then in query give inputs as name and image and automatically values get in url and send 
+in response we get the name and image key 
+
+to save the value in database(mongodb)
+uncomment the const db and result code
+(const db = await dbconnection();
+const category = db.collection('categories');
+const obj = request.body;
+
+const result = await category.insertMany(obj);
+) 
+and in insertOne() pass resquest.query
+(const obj = request.query;
+const result = await category.insertOne(request.query);
+)
+and click send which give success response also in mongodbcompass 
+
+
+Backdrop of query:
+when you call api in react you use axios() like 
+var obj{ name:'pratik' }
+axios('api url',obj)
+also another method to call api was using toformdata() 
+axios('api url',toformdata(obj))
+but you cant use this method to get value as we are passing values in url by using request.query 
+but in post method you wont pass values in url 
+for overcoming this problem we will use body tab 
+
+
+-----------------------------------------------
+
+Body:
+In Body tab we have JSON and Form-encoded 
+
+JSON:
+so in react for calling you are using this method 
+axios('api url',obj)
+then you will use JSON to pass values 
+
+now we will pass values in JSON 
+([{
+    "name ": "raj",
+    "image": "1.jpg"
+}])
+
+remove the Query inputs and values passed in url 
+
+in categoriescontroller.js file,
+have obj constant 
+(const obj = request.body;)
+uncomment the const result code
+(const result = await category.insertMany(obj);
+)  
+at data key give request.body
+(data: result.body) 
+
+and if we click send it will sucess response with no values 
+as we need to allow JSON and Form-encode 
+for this uncomment server.use(express.json()); in server.js file, 
+now click send which will give values in reponse 
+
+
+-----------------------------------------------
+
+
+Form-encode:
+and if you are using this method 
+axios('api url',toformdata(obj))
+then we will pass values in Form-encode
+
+now we wil pass values in Form-encode 
+give name and image as inputs 
+comment this lines 
+(// const obj = request.body;
+// const result = await category.insertMany(obj);
+)
+at data key give request.body 
+(data: request.body)
+then click send which will give response but no values 
+
+as we need to allow url values 
+for this add this code 
+in server.js file 
+( server.use(express.urlencoded({ extended: true })); )
+now click send which will give values in response 
+
+
+
+for getting values in database(mongodb):
+so in both JSON and Form-encode we get values 
+uncomment insertOne() code and pass request.body in it 
+(const result = await category.insertOne(request.body);)
+(data: request.body)
+and click send which gets response with values in mongodb 
+
+
+-----------------------------------------------
+
+
+Filtering:
+on view page at http://localhost:2000/api/backend/categories/view
+we can see all the records 
+
+but we want to see only records with name as men 
+for this in view function,
+comment the constant result which gets all the records
+(// const result = await category.find().toArray();)
+
+and make a new result constant in that inside find() function pass an object
+(const result = await category.find(obj).toArray();)  
+so make an name key in which pass request.query.search in obj 
+(var obj = {
+        name: request.query.search
+    }) 
+so we give http://localhost:2000/api/backend/categories/view?search=men in url 
+which will give records with only name : men
+
+
+
+
+For filtering two keys:
+in view function,
+in find({}) functions object pass another key by separating with comma
+( const result = await db.collection('categories').find(
+        {
+            name: request.query.search,
+            image: '2.jpg'
+        }).toArray();
+)
+so we give http://localhost:2000/api/backend/categories/view?search=men in url 
+which will give records with name:men and image:2.jpg 
+or in thunderclient,in view api,in query 
+give inputs search = men 
+which will give records with name:men and image:2.jpg
+
+
+
+
+For filtering particular key: 
+if we want to give only id and name and no image key in response 
+for this in find({}) functions object pass a blank object and another object in which pass projection key 
+in projection key pass object 
+now in this object we will pass name key and id key is fixed to get 
+in name key pass true 
+( const result = await db.collection('categories').find(
+        {},
+        {
+            projection: {
+                name: true
+            }
+        }
+    ).toArray(); )
+now on http://localhost:2000/api/backend/categories/view
+we get all the records with id and name key only and not having image key 
+and if we give name key as false 
+then we will get records with id and image key and not having name key 
+or 
+(var obj = {
+        name: request.query.name,
+        image: request.query.image
+    }
+    const result = await category.find(obj).toArray();
+)
+in thunderclient, in view api, in Query
+give name = men and image = 1.jpg 
+and click send 
+which we get all the records with name = men and image = 1.jpg 
+
+
+
+
+
+to get single record:
+for this use findOne() function
+(  const result = await db.collection('categories').findOne(); )
+which on http://localhost:2000/api/backend/categories/view
+give only one record which was at first place 
+then in thunderclient, in view api, in Query
+give in input id = 66e3967800883acd962f82a6
+which will give in response this id record
+
+but you will get records on basis of id 
+so to get id record 
+from mongodb copy id of record you want in response 
+and paste it in the url as 
+( http://localhost:2000/api/backend/categories/view?id=66da97ea6db3edb05cc1d990 )
+then in findOne function pass object 
+in which give id (as in mongodb ie _id) and 
+in id pass mongodb.ObjectId() function and in objectId() pass request.query.id 
+( const result = await db.collection('categories').findOne(
+        {
+            _id: new mongodb.ObjectId(request.query.id)
+        }
+    ); )
+and import mongodb in categoriescontroller.js file,
+( const mongodb = require('mongodb'); )
+so now refresh page and we will get the record of the id we have given in the url
+or in thunderclient, in view api, in Query
+give in input id = 66e3967800883acd962f82a6
+which will give in response this id record 
+
+

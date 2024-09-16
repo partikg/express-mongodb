@@ -1,0 +1,226 @@
+view category:
+at thunderclient make a new request view category 
+give view url and use get method 
+and in view function uncomment the result constant of all records ie this line  
+( const result = await db.collection('categories').find().toArray(); )
+now in thunderclient, in query,
+give nothing in inputs
+click on send which will give all the records 
+
+
+
+
+update category:
+at update function,
+make dbconnection an executable function 
+( const db = await dbconnection(); )
+
+now update query
+make result constant in that pass db.collection() function and we have categories as collection name
+(const result = db.collection('categories');)
+
+then use updateOne() function to update the record 
+in updateOne() function pass two parameters 
+in first object apply condition that according to id update the record so write _id key (_id from mongodb) in which pass mongodb.ObjectId(request.body.id)
+in second object write the key which you want to update 
+so use $set key in which pass object which will have keys to update 
+like name,image 
+( const result = await db.collection('categories').updateMany(
+        {
+            _id: new mongodb.ObjectId(request.body.id)
+        },
+        {
+            $set: {
+                name: request.body.name,
+            }
+        }
+    ) )
+
+lastly pass the result constant to data key  
+(data: result)
+
+make update category request:
+at thunderclient make a new request as update category 
+give update url and use put method 
+also in categories.routes.js file,
+change update route to put method
+(server.put('/update', category.update)) 
+go in thunderclient in body form-encoded 
+and give input as name key as new clothes 
+and id key in which get value from view category which you want to update 
+name = newclothes and id = 66e18fb44b45c8930038101a
+and click send 
+so you will get success response 
+
+so in thunderclient in view api again click send and you can see in the given record whose id you have given to update 
+that its name has been changed to new clothes 
+
+
+
+update image:
+now to update image also 
+in thunderclient, at update category api 
+in input give image as clothes.jpg 
+and in update function, at $set key along with name give image key 
+( $set: {
+                name: request.body.name,
+                image: request.body.image,
+        } )
+and click send 
+which will in view api changes image in record of given id with image as clothes.jpg 
+
+
+updateMany():
+to update many records instead of updateOne() function use updateMany() function
+but here as we use id condition which is different for every record 
+so still only one record will get updated 
+but if we use name key for condition in first parameter then we can get multiple records 
+
+
+
+-----------------------------------------------
+
+
+delete category:
+we have /delete url for delete function 
+so i want to pass id in this url as /delete/id value ie /delete/12
+
+in categories.routes.js, in delete route 
+but if we send id in delete route 
+server.delete('/delete/12', category.delete) 
+so in url /delete/12 gets fixed as it becomes part of the url 
+but we want to give any value at /delete/value 
+for this use :id in delete route  
+( server.delete('/delete/:id', category.delete) )
+
+and in categories.controller.js, 
+in delete function, in data key give request.params.id for passing values in url
+( data: request.params.id )
+and id is the same name as given at /delete/:id 
+
+at thunderclient, make a new request of delete category
+give delete url and use DELETE method
+and in url after /delete/ give value like /delete/455 
+http://localhost:26/api/backend/categories/delete/455
+and click send 
+which in response in data key gives 455 
+
+delete query:
+we will use deleteOne() function and deleteMany() function 
+in which you will pass condition 
+in categories.controller.js, 
+at delete function, get the constant db and result for all record code from view function 
+now use deleteOne() function in that pass object 
+then apply condition as database _id matches with the id in url 
+where we use mongodb.ObjectId(request.params.id)
+( const db = await dbconnection();
+    const result = await db.collection('categories').deleteMany(
+        {
+            _id: new mongodb.ObjectId(request.params.id)
+        },
+    ) )
+and in data key pass result
+(data: result)
+then in thunderclient, in delete category api,
+in url paste the id which we get from view category api
+http://localhost:26/api/backend/categories/delete/66e18fb44b45c8930038101a
+and click send 
+which will delete that id record 
+then check in view category api the record will get deleted 
+
+if we again click send when record is already then we will get deletedCount as 0 means record is not deleted 
+
+
+deleteMany():
+now we will use deleteMany() function at the place of deleteOne() function but we are using id condition to check record so it will still delete only one 
+
+
+
+
+
+
+
+
+
+whole code of categories.controller.js:
+(const dbconnection = require('../../../database');
+const mongodb = require('mongodb');
+
+exports.create = async (request, response) => {
+    const db = await dbconnection();
+    const category = db.collection('categories');
+    // const obj = request.body;
+
+    const result = await category.insertOne(request.body);
+
+    var data = {
+        status: true,
+        message: 'record created successfully',
+        data: request.body
+    }
+    response.send(data);
+}
+
+exports.view = async (request, response) => {
+    const db = await dbconnection();
+    const category = db.collection('categories');
+
+    // var obj = {
+    //     name: request.query.name,
+    //     image: request.query.image
+    // }
+
+    // const result = await category.find(obj).toArray();
+    // const result = await category.findOne();
+    // const result = await db.collection('categories').findOne(
+    //     {
+    //         _id: new mongodb.ObjectId(request.query.id)
+    //     }
+    // );
+    const result = await db.collection('categories').find().toArray();
+
+    var data = {
+        status: true,
+        message: 'record viewed successfully',
+        data: result
+    }
+    response.send(data);
+}
+
+
+exports.update = async (request, response) => {
+    const db = await dbconnection();
+    const result = await db.collection('categories').updateMany(
+        {
+            _id: new mongodb.ObjectId(request.body.id)
+        },
+        {
+            $set: {
+                name: request.body.name,
+                image: request.body.image
+            }
+        }
+    )
+    var data = {
+        status: true,
+        message: 'record updated successfully',
+        data: result
+    }
+    response.send(data);
+}
+
+exports.delete = async (request, response) => {
+    const db = await dbconnection();
+    const result = await db.collection('categories').deleteMany(
+        {
+            _id: new mongodb.ObjectId(request.params.id)
+        },
+    )
+    var data = {
+        status: true,
+        message: 'record deleted successfully',
+        data: result
+    }
+    response.send(data);
+}
+)
